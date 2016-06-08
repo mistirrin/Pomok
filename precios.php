@@ -128,8 +128,8 @@
             
             //DOLAR
             var dolarBanxico = <?php 
-                    //echo file_get_contents('http://www.banxico.org.mx/pubDGOBC_Sisfix-war/Sisfix_JSON');
-                ?> "";
+                    echo file_get_contents('http://www.banxico.org.mx/pubDGOBC_Sisfix-war/Sisfix_JSON');
+                ?>;
             var dolar = dolarBanxico.tcfix;
             $("#dolar").val("1 USD = " + dolar + " MXN").attr("val", dolar);
             
@@ -435,7 +435,6 @@
             }
             
             //GENERATE GRAPHIC
-            var svg = "", line = "";
             function GenerateGraphic(data) {
                 var data = GetDataSeries(data);
                 
@@ -460,13 +459,13 @@
                     .scale(y)
                     .orient("left");
 
-                line = d3.svg.line()
+                var line = d3.svg.line()
                     .defined(function(d) { return !isNaN(d.Precio); })
                     //.defined(function(d) { return d; })
                     .x(function(d) { return x(d.Fecha); })
                     .y(function(d) { return y(d.Precio); });
 
-                svg = d3.select("div .graph").html("").append("svg")
+                var svg = d3.select("div .graph").html("").append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
                     .append("g")
@@ -524,6 +523,7 @@
                     .attr("d", function(d) { return line(d.Valores); })
                     .style("stroke", function(d) { return color(d.Provedor); });                
                 
+                //PUNTOS
                 provedoresDot = [];
                 $.each(provedores, function(i, provedor) {
                     $.each(provedor.Valores, function(j, valores) {
@@ -536,7 +536,7 @@
                        }
                     });
                 });
-                
+
                 var provedorPunto = svg.selectAll(".provedorDotGroup")
                     .data(provedoresDot)
                     .enter().append("g")
@@ -548,8 +548,36 @@
                     .attr("cy", function(d) { return y(d.Precio); })
                     .style("fill", function(d) { return color(d.Provedor); })
                     .attr("r", 3.5); 
+                
+                //LEGEND
+                var legendRectSize = 18;
+                var legendSpacing = 4;
+                
+                var legend = svg.selectAll('.legend')
+                    .data(color.domain())
+                    .enter()
+                    .append('g')
+                    .attr('class', 'legend')
+                    .attr('transform', function(d, i) {
+                        var h = legendRectSize + legendSpacing;
+                        var offset =  h * color.domain().length / 2;
+                        var horz = width - (2 * legendRectSize + margin.right);
+                        var vert = height - (i * h + margin.bottom);
+                        return 'translate(' + horz + ',' + vert + ')';
+                    });
+                
+                legend.append('rect')
+                    .attr('width', legendRectSize)
+                    .attr('height', legendRectSize)
+                    .style('fill', color)
+                    .style('stroke', color);
+                
+                legend.append('text')
+                    .attr('x', legendRectSize + legendSpacing)
+                    .attr('y', legendRectSize - legendSpacing)
+                    .text(function(d) { return d; });                
             }
-
+            
             //TO DO: WORK ON GRAPH RESPONSIVENESS
             function resize() {
                 /* Find the new window dimensions */
