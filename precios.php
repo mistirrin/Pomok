@@ -89,11 +89,13 @@
                                     <td class="producto"><input type="text" class="form-control"/></td>
                                     <td class="provedor"><input type="text" class="form-control"/></td>
                                     <td class="precio"><input type="number" class="form-control"/></td>
-                                    <td class="unidad">
-                                        <select class="unit-select form-control">
-                                        </select>
+                                    <td class="moneda">
+                                        <select class="currency-select form-control"></select>
                                     </td>
-                                    <td class="fecha"><input type="date"/></td>
+                                    <td class="unidad">
+                                        <select class="unit-select form-control"></select>
+                                    </td>
+                                    <td class="fecha"><input type="date" class="form-control"/></td>
                                 </tr>                        
                             </tbody>                            
                         </table>
@@ -141,11 +143,13 @@
             var format = d3.time.format("%Y-%m-%d");
 
             //UNIDADES
-            var unidades = [{ unidad: 'litro', factor: 1 },
-                            { unidad: 'tambo', factor: 200},
-                            { unidad: 'porrón 20', factor: 20},
-                            { unidad: 'porrón 50', factor: 50},
-                            { unidad: 'galon', factor: 3.78541}];
+            var unidades = ['litro', 'kilo'];
+            
+            //MONEDAS
+            var monedas = ['MXN', 'USD'];
+            
+            //COLUMNAS
+            var columnas = ['Producto', 'Provedor', 'Precio', 'Moneda', 'Unidad', 'Fecha'];
             
             //BUILD DEFAULT TABLE
             LoadData(currSort, currField);
@@ -178,6 +182,7 @@
                 }
             }
             
+            //DELETE
             //SIDE BAR SORT
             /* $(".sidebar .nav-sidebar li").on("click", function() {
                 $(".sidebar .nav-sidebar li").removeClass("active");
@@ -198,11 +203,20 @@
             //ADD UNIT SELECT
             function AddUnitSelect() {
                 var s = $(".add .unidad select").addClass("unit-select");
-                $.each(unidades, function(i,d) {
-                                    $('<option />', {value: d.unidad, text: d.unidad}).appendTo(s);
-                });                                                
-                s.val(unidades[0].unidad);
+                $.each(unidades, function(i, unidad) {
+                                    $('<option />', {value: unidad, text: unidad}).appendTo(s);
+                });
+                s.val(unidades[0]);
             }
+            
+            //ADD CURRENCY SELECT
+            function AddCurrencySelect() {
+                var s = $(".add .moneda select").addClass("currency-select");
+                $.each(monedas, function(i, moneda) {
+                                    $('<option />', {value: moneda, text: moneda}).appendTo(s);
+                });
+                s.val(monedas[0]);
+            }            
             
             //SET CURRENT DATE
             function SetCurrentDate() {
@@ -283,6 +297,7 @@
                     dataset = dataset.sort(sortFunction(field));
                     BuildTable(dataset);
                     AddUnitSelect();
+                    AddCurrencySelect();
                     SetCurrentDate();
                     AddProductButtons(dataset);
                 });
@@ -292,27 +307,18 @@
             function CreateJSON(update) {                
                 var json = [];
                 
+                //DELETE
                 //Save Keys
                 var keys = [];
                 $.each($(".item-table.display thead tr td"), function(i, item) {
                     keys.push($(item).text());
                 });
                 
-                //Change to Liters
-                $.each($(".item-table" + update + " tbody tr td select"), function(i, select)  {
-                    var input = $(this).parent().siblings("td.precio").children("input")[0];
-                    var valor = $(input).val();
-                    var unidad = $(this).val();                    
-                    var factor = unidades.filter(function(obj) { return obj.unidad == unidad })[0].factor;
-                    $(input).val(valor / factor);
-                    $(this).val("litro");
-                });
-                
                 //Save Rows
                 $.each($(".item-table" + update + " tbody tr"), function(i, item) {
                     var row = {};
                     $.each($(item).find("td input, td select"), function(j, val) {
-                      row[keys[j]] = $(val).val();
+                      row[columnas[j]] = $(val).val();
                     });
                     json.push(row);
                 });
@@ -350,12 +356,10 @@
             //BUILD TABLE
             function BuildTable(data) {
                 //HEAD
-                $(".item-table thead").html("");                
-                var $head = $("<tr>");                
-                $.each(data[0], function(key, value) {
-                   var $tr = $head.append(
-                        $('<td>').text(key)
-                   );
+                $(".item-table thead").html("");
+                var $head = $("<tr>");
+                $.each(columnas, function(key, columna) {
+                   var $tr = $head.append( $('<td>').text(columna) );
                 });
                 $head.appendTo(".item-table thead");
 
@@ -366,10 +370,18 @@
                         $('<td>').addClass("producto").append($('<input type="text" class="form-control">').val(item.Producto)),
                         $('<td>').addClass("provedor").append($('<input type="text" class="form-control">').val(item.Provedor)),
                         $('<td>').addClass("precio").append($('<input type="text" class="form-control">').val(item.Precio).attr("val", item.Precio)),
+                        $('<td>').addClass("moneda").append(
+                            function() { var s = $('<select class="currency-select form-control">');
+                                $.each(monedas, function(i, moneda) {
+                                    $('<option />', {value: moneda, text: moneda}).appendTo(s);
+                                });
+                                s.val(item.Moneda);
+                                return s;
+                            }),
                         $('<td>').addClass("unidad").append(
-                            function() { var s = $('<select class="unit-select form-control">');//.addClass('unit-select'); 
-                                $.each(unidades, function(i,d) {
-                                    $('<option />', {value: d.unidad, text: d.unidad}).appendTo(s);
+                            function() { var s = $('<select class="unit-select form-control">');
+                                $.each(unidades, function(i, unidad) {
+                                    $('<option />', {value: unidad, text: unidad}).appendTo(s);
                                 });
                                 s.val(item.Unidad);
                                 return s;
@@ -377,30 +389,7 @@
                         $('<td>').addClass("fecha").append($('<input type="date" class="form-control">').val(format(item.Fecha)))
                     );                    
                     $tr.appendTo(".item-table.display tbody")
-                });
-                
-                //SELECT UNIT
-                $(".unit-select")
-                    .change(function() {                        
-                        var input = $(this).parent().siblings("td.precio").children("input")[0];
-                        var val = $(input).attr("val");
-                        var unidad = $(this).val();
-                        var factor = unidades.filter(function(obj) { return obj.unidad == unidad })[0].factor;
-                        $(input).val(val * factor);
-                });
-                
-                //CHANGE PRICE
-                $(".display .precio input")
-                    .change(function() {
-                        //CHANGE TO LITERS
-                        var select = $(this).parent().siblings("td.unidad").children("select")[0];
-                        var unidad = $(select).val();
-                        var valor = $(this).val();                    
-                        var factor = unidades.filter(function(obj) { return obj.unidad == unidad })[0].factor;                        
-                        valor = valor / factor;
-                        $(this).attr("val", valor);
-                });
-                
+                });                                
             }
             
             //FILTER TABLE
