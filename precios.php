@@ -122,9 +122,13 @@
         <script src="//d3js.org/d3.v3.min.js"></script>
         <!-- custom script -->
         <script>
+            //INITIALIZE VARIABLES
             dataset = [];
             currSort = sortNumber;
             currField = "Fecha";
+            
+            //NO CACHE AJAX
+            $.ajaxSetup({ cache: false });
             
             //DOLAR
             var dolarBanxico = <?php 
@@ -334,7 +338,7 @@
                         json : JSON.stringify(data)
                     }}).done(function() {
                         LoadData(currSort, currField);
-                        if (validated) {
+                        if (isUpdate) {
                             $(".item-table.add tbody input, .item-table.add tbody select").val("");
                         }
                     });                
