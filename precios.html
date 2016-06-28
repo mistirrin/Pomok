@@ -165,7 +165,7 @@
             
             //LOAD DATA
             function LoadData(sortFunction, field) {
-                $.getJSON( "test.json", function( data, error ) {                
+                $.getJSON( "provedores-data.json", function( data, error ) {                
                     $.each(data, function(i, d) {
                         data[i]["Fecha"] = format.parse(data[i]["Fecha"]);
                     });
@@ -220,7 +220,7 @@
                     //SAVE FILE IN SERVER
                     $.ajax({
                         type : "POST",
-                        url : "json.php",
+                        url : "provedores-ajax.php",
                         data : {
                             json : JSON.stringify(data)
                         }

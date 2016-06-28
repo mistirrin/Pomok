@@ -4,7 +4,7 @@
    /* sanity check */
    if (json_decode($json) != null)
    {
-     $file = fopen('test.json','w+');
+     $file = fopen('provedores-data.json','w+');
      fwrite($file, $json);
      fclose($file);
    }

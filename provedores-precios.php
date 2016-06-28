@@ -9,7 +9,7 @@
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
 
-        <title>Dashboard Template for Bootstrap</title>
+        <title>Provedores</title>
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -49,7 +49,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Project name</a>
+                    <a class="navbar-brand" href="#">GUES - Provedores</a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
@@ -77,7 +77,17 @@
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">-->
                 <div class="col-xs-12 main">
-                    <h1 class="page-header">Dashboard</h1>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <a type="button" class="btn btn-default btn-block" href="clientes-precios.php">Clientes</a>
+                        </div>
+                        <div class="col-xs-6">                    
+                            <a type="button" class="btn btn-default btn-block active" href="provedores-precios.php">Provedores</a>
+                        </div>
+                    </div>
+                    <br>                    
+                    <h1 class="page-header">Productos</h1>
                     <div class="row" id="product-div">                        
                     </div>
                     <h2 class="sub-header">Tabla de Precios</h2>                
@@ -288,7 +298,7 @@
             ///////////
             //LOAD DATA
             function LoadData(sortFunction, field) {
-                $.getJSON( "test.json", function( data, error ) {
+                $.getJSON( "provedores-data.json", function( data, error ) {
                     $.each(data, function(i, d) {
                         data[i]["Fecha"] = format.parse(data[i]["Fecha"]);
                     });
@@ -339,7 +349,7 @@
                 //SAVE FILE IN SERVER
                 $.ajax({
                     type : "POST",
-                    url : "json.php",
+                    url : "provedores-ajax.php",
                     data : {
                         json : JSON.stringify(data)
                     }}).done(function() {
