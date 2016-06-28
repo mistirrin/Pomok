@@ -357,6 +357,7 @@
                         if (isUpdate) {
                             $(".item-table.add tbody input, .item-table.add tbody select").val("");
                         }
+                        alert("La base de datos se ha actualizado correctamente.");
                     });                
             }
             
